@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.chat.android.im.viewmodel.ChatViewModel" />
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/titleView"
+            layout="@layout/common_titlebar"
+            app:title="@{viewModel.title}" />
+
+        <LinearLayout
+            android:id="@+id/llContent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/swipe_chat"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_chat_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:overScrollMode="never" />
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/send_area"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="bottom"
+                android:minHeight="@dimen/dp_54"
+                android:orientation="horizontal"
+                android:paddingLeft="@dimen/dp_20"
+                android:paddingRight="@dimen/dp_20">
+
+                <ImageView
+                    android:id="@+id/ivAudio"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_margin="10px"
+                    android:src="@drawable/ic_audio"
+                    android:visibility="gone" />
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="@dimen/dp_9"
+                    android:paddingBottom="@dimen/dp_9">
+
+                    <EditText
+                        android:id="@+id/et_content"
+                        android:layout_width="@dimen/dp_265"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine"
+                        android:lineSpacingExtra="@dimen/dp_1"
+                        android:maxLines="3"
+                        android:minHeight="@dimen/dp_36"
+                        android:minLines="1"
+                        android:paddingLeft="@dimen/dp_10"
+                        android:paddingTop="@dimen/dp_3"
+                        android:paddingRight="@dimen/dp_10"
+                        android:paddingBottom="@dimen/dp_3"
+                        android:textColor="@color/im_white"
+                        android:textSize="@dimen/sp_14" />
+
+                    <com.chat.android.im.view.RecordButton
+                        android:id="@+id/btnAudio"
+                        style="?android:attr/borderlessButtonStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/shape_session_btn_voice"
+                        android:text="按住说话"
+                        android:textSize="13dp"
+                        android:visibility="gone" />
+
+
+                </RelativeLayout>
+
+                <ImageView
+                    android:id="@+id/ivEmo"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_margin="10px"
+                    android:src="@drawable/ic_emoji"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/ivAdd"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginLeft="10px"
+                    android:layout_marginRight="14px"
+                    android:src="@drawable/ic_add"
+                    android:visibility="gone" />
+
+                <com.chat.android.im.view.StateButton
+                    android:layout_width="50dp"
+                    android:layout_height="30dp"
+                    android:layout_marginRight="10dp"
+                    android:padding="1dp"
+                    android:text="发送"
+                    android:textColor="@color/im_white"
+                    android:textSize="13dp"
+                    android:visibility="gone"
+                    app:normalBackgroundColor="#127CD6"
+                    app:pressedBackgroundColor="#0f519b"
+                    app:radius="5dp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dp_54"
+                    android:orientation="horizontal"
+                    android:paddingTop="@dimen/dp_12">
+
+                    <TextView
+                        android:id="@+id/btn_send"
+                        android:layout_width="@dimen/dp_60"
+                        android:layout_height="@dimen/dp_30"
+                        android:layout_marginLeft="@dimen/dp_10"
+                        android:gravity="center"
+                        android:text="发送"
+                        android:textColor="@color/im_white" />
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#d9d9d9"
+                android:visibility="gone" />
+
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/bottom_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+            <!--表情-->
+            <include
+                android:id="@+id/rlEmotion"
+                layout="@layout/include_emoji_layout"
+                android:visibility="gone" />
+
+            <include
+                android:id="@+id/llAdd"
+                layout="@layout/include_add_layout"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+
+    </LinearLayout>
+</layout>

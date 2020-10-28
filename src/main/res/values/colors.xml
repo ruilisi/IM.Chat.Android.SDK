@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <color name="im_white">#FFFFFF</color>
+    <color name="im_black">#242433</color>
+    <color name="im_status_bar">#33000000</color>
+    <color name="im_time_text">#8F8D97</color>
+    <color name="im_line">#F7F7F7</color>
+    <color name="im_background">#F7F7F7</color>
+    <color name="im_receive_text">#2E3133</color>
+    <color name="im_edittext_bg">#EBEEF2</color>
+    <color name="im_send_bg">#4D88FF</color>
+    <color name="im_receive_bg">#E6EAF2</color>
+
+</resources>

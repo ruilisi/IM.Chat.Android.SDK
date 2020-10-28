@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ll_text_receive"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <TextView
+        android:id="@+id/item_tv_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingTop="@dimen/dp_10"
+        android:paddingBottom="@dimen/dp_10"
+        android:textSize="@dimen/sp_12" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="20dp">
+
+        <com.chat.android.im.view.CircleImageView
+            android:id="@+id/chat_item_header"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="5dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_head_default_left"
+            android:visibility="gone" />
+
+
+        <RelativeLayout
+            android:id="@+id/chat_item_layout_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="@dimen/dp_5"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="@dimen/dp_5"
+            android:layout_toRightOf="@id/chat_item_header"
+            android:gravity="right|center_vertical"
+            android:orientation="horizontal">
+
+
+            <com.chat.android.im.view.BubbleImageView
+                android:id="@+id/bivPic"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:scaleType="centerCrop"
+                app:angle="6dp"
+                app:arrowHeight="8dp"
+                app:arrowLocation="left"
+                app:arrowPosition="15dp"
+                app:arrowWidth="5dp" />
+
+
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+
+</LinearLayout>
