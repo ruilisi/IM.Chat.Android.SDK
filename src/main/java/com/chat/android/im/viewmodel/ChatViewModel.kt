@@ -62,6 +62,7 @@ class ChatViewModel : ViewModel() {
     private val receiveLock = ReentrantLock()
     private var lastMsgId: String? = empty //偶现下发两条一模一样的数据，做下兼容
     private var lastHistoryShowTimeStamp = 0L
+    private var firstHistoryShowTimeStamp = 0L
     private var lastShowTimeStamp = 0L
 
     init {
@@ -264,17 +265,25 @@ class ChatViewModel : ViewModel() {
         MessageManager.setChatMessageRefreshListener(null)
     }
 
-    private fun initHistoryMsgShowTimeStamp(chatMessage: ChatMessage): ChatMessage {
-        if (lastHistoryShowTimeStamp == 0L && !iChatMessage?.getItemList().isNullOrEmpty()) {
-            lastHistoryShowTimeStamp = iChatMessage?.getItemList()!!.first().ts.date
+    private fun initHistoryMsgShowTimeStamp(chatMessage: ChatMessage, index: Int): ChatMessage {
+
+        if (index == 0) {
+            firstHistoryShowTimeStamp = chatMessage.ts.date
+            chatMessage.timeShow.date = firstHistoryShowTimeStamp
+
+            if (!iChatMessage?.getItemList().isNullOrEmpty()) {
+                lastHistoryShowTimeStamp = iChatMessage?.getItemList()!!.first().ts.date
+            }
+        } else {
+
+            if (lastHistoryShowTimeStamp - chatMessage.ts.date > SEND_INTERVAL_NO_SHOW_TIME
+                    && chatMessage.ts.date - firstHistoryShowTimeStamp > SEND_INTERVAL_NO_SHOW_TIME) {
+                lastHistoryShowTimeStamp = chatMessage.ts.date
+                chatMessage.timeShow.date = lastHistoryShowTimeStamp
+            }
+
         }
-        if (lastHistoryShowTimeStamp == 0L) {
-            lastHistoryShowTimeStamp = System.currentTimeMillis()
-        }
-        if (lastHistoryShowTimeStamp - chatMessage.ts.date > SEND_INTERVAL_NO_SHOW_TIME) {
-            lastHistoryShowTimeStamp = chatMessage.ts.date
-            chatMessage.timeShow.date = lastHistoryShowTimeStamp
-        }
+
         return chatMessage
     }
 
@@ -369,8 +378,8 @@ class ChatViewModel : ViewModel() {
                                 msgList.add(receiveMessage)
                             }
 
-                            for (index in msgList.size - 1 downTo 0) {
-                                initHistoryMsgShowTimeStamp(msgList[index])
+                            for (index in msgList.indices) {
+                                initHistoryMsgShowTimeStamp(msgList[index], index)
                             }
 
                             MessageManager.syscWithLockReceiveHistoryMsg(msgList)
