@@ -342,6 +342,7 @@ class MessageHistoryResultBody {
     var channels: Array<Any?>? = null
     var file: FileType? = null
     val attachments: Array<Attachments> = arrayOf()
+    val groupable: Boolean = false
 }
 
 class FileType(val _id: String?, val name: String?, val type: String?)
@@ -356,6 +357,9 @@ class Attachments(val ts: String?,
                   val image_size: Long = 0,
                   val type: String?,
                   val description: String?,
+                  val video_url: String?,
+                  val video_type: String?,
+                  val video_size: Long = 0,
                   @Embedded
                   val image_dimensions: ImageDimension?) {
 

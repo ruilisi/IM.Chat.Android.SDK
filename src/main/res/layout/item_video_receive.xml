@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/ll_text_receive"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="5dp">
-
 
     <TextView
         android:id="@+id/item_tv_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:textColor="#999999"
-        android:textSize="12dp"
-        android:visibility="gone" />
-
+        android:paddingTop="@dimen/dp_10"
+        android:paddingBottom="@dimen/dp_10"
+        android:textSize="@dimen/sp_12" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -32,7 +31,8 @@
             android:layout_alignParentLeft="true"
             android:layout_marginRight="5dp"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_head_default_left" />
+            android:src="@drawable/ic_head_default_left"
+            android:visibility="gone" />
 
 
         <RelativeLayout
@@ -40,7 +40,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
+            android:layout_marginTop="@dimen/dp_5"
             android:layout_marginRight="20dp"
+            android:layout_marginBottom="@dimen/dp_5"
             android:layout_toRightOf="@id/chat_item_header"
             android:gravity="right|center_vertical"
             android:orientation="horizontal">
@@ -50,24 +52,45 @@
                 android:id="@+id/bivPic"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
                 android:scaleType="centerCrop"
+                android:visibility="gone"
                 app:angle="6dp"
                 app:arrowHeight="8dp"
                 app:arrowLocation="left"
                 app:arrowPosition="15dp"
                 app:arrowWidth="5dp" />
 
+            <TextView
+                android:id="@+id/file_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/dp_5"
+                android:visibility="gone"
+                tools:text="Some description"
+                tools:visibility="visible" />
 
-            <ImageView
-                android:id="@+id/ivPlay"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_centerInParent="true"
-                android:src="@drawable/ic_video_start" />
+            <FrameLayout
+                android:id="@+id/audio_video_attachment"
+                android:layout_width="@dimen/dp_250"
+                android:layout_height="150dp"
+                android:layout_below="@id/file_description"
+                android:background="@color/im_black"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/play_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_video_start" />
+            </FrameLayout>
 
         </RelativeLayout>
-
 
     </RelativeLayout>
 
 </LinearLayout>
+

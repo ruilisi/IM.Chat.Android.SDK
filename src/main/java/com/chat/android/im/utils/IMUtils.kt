@@ -112,6 +112,8 @@ fun attachmentTitle(title: String?, vararg url: String?): CharSequence {
 fun parseMsgType(data: MessageHistoryResultBody): MsgType {
     if (data.file?.type?.startsWith("image") == true) {
         return MsgType.IMAGE
+    } else if (data.file?.type?.startsWith("video") == true) {
+        return MsgType.VIDEO
     }
     return MsgType.TEXT
 }

@@ -3,12 +3,14 @@ package com.chat.android.im.adapter;
 import android.content.Context;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.chad.library.adapter.base.util.MultiTypeDelegate;
 import com.chat.android.im.R;
+import com.chat.android.im.activity.PlayerActivity;
 import com.chat.android.im.bean.ChatMessage;
 import com.chat.android.im.bean.MsgBody;
 import com.chat.android.im.bean.MsgSendStatus;
@@ -140,13 +142,7 @@ public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
         } else if (item.getMsgType().equals(MsgType.IMAGE)) {
             setImageMsgShow(helper, item);
         } else if (item.getMsgType().equals(MsgType.VIDEO)) {
-//            VideoMsgBody msgBody = (VideoMsgBody) item.getBody();
-//            File file = new File(msgBody.getExtra());
-//            if (file.exists()) {
-//                GlideUtils.loadChatImage(mContext, msgBody.getExtra(), (ImageView) helper.getView(R.id.bivPic));
-//            } else {
-//                GlideUtils.loadChatImage(mContext, msgBody.getExtra(), (ImageView) helper.getView(R.id.bivPic));
-//            }
+            setVideoShow(helper, item);
         } else if (item.getMsgType().equals(MsgType.FILE)) {
 //            FileMsgBody msgBody = (FileMsgBody) item.getBody();
 //            helper.setText(R.id.msg_tv_file_name, msgBody.getDisplayName());
@@ -155,6 +151,37 @@ public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
 //            AudioMsgBody msgBody = (AudioMsgBody) item.getBody();
 //            helper.setText(R.id.tvDuration, msgBody.getDuration() + "\"");
         }
+    }
+
+    private void setVideoShow(BaseViewHolder helper, ChatMessage item) {
+        MsgBody msgBody = item.getMsgBody();
+        TextView timeView = helper.getView(R.id.item_tv_time);
+        if (item.getTimeShow().getDate() == 0) {
+            timeView.setVisibility(View.GONE);
+        } else {
+            timeView.setVisibility(View.VISIBLE);
+            timeView.setTextColor(parseColor(timeView.getContext(), mUiConfig.getTimeColor()));
+            timeView.setTextSize(TypedValue.COMPLEX_UNIT_SP, mUiConfig.getTimeSize());
+            timeView.setText(parseTime(item.getTimeShow().getDate()));
+        }
+
+        TextView description = helper.getView(R.id.file_description);
+        String descriptionText = msgBody.getAttachments()[0].getDescription();
+        if (descriptionText == null || descriptionText.isEmpty()) {
+            description.setVisibility(View.GONE);
+        } else {
+            description.setText(descriptionText);
+            description.setVisibility(View.VISIBLE);
+        }
+
+        String url = IMUtilsKt.attachmentUrl(msgBody.getAttachments()[0].getVideo_url());
+        FrameLayout viewAttachment = helper.getView(R.id.audio_video_attachment);
+        viewAttachment.setOnClickListener(v -> {
+            if (url != null && !url.isEmpty()) {
+                PlayerActivity.Companion.play(v.getContext(), url);
+            }
+        });
+
     }
 
     private void setImageMsgShow(BaseViewHolder helper, ChatMessage item) {

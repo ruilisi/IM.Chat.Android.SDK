@@ -15,6 +15,11 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden" />
 
+        <activity
+            android:name=".activity.PlayerActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+            android:theme="@style/PlayerTheme" />
+
     </application>
 
 </manifest>
