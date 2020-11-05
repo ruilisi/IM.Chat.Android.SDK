@@ -170,6 +170,16 @@ public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
             timeView.setText(parseTime(item.getTimeShow().getDate()));
         }
 
+        TextView description = helper.getView(R.id.file_description);
+        String descriptionText = msgBody.getAttachments()[0].getDescription();
+        if (descriptionText == null || descriptionText.isEmpty()) {
+            description.setVisibility(View.GONE);
+        } else {
+            description.setText(descriptionText);
+            description.setVisibility(View.VISIBLE);
+        }
+
+
         SimpleDraweeView simpleDraweeView = helper.getView(R.id.image_attachment);
         String url = IMUtilsKt.attachmentUrl(msgBody.getAttachments()[0].getImage_url());
         AbstractDraweeController controller = Fresco.newDraweeControllerBuilder()
