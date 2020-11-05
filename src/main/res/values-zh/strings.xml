@@ -2,4 +2,10 @@
 <resources>
 
     <string name="data_is_null">缺少必要数据</string>
+    <string name="action_save_to_gallery">Save to gallery</string>
+    <string name="msg_image_saved_failed">Failed to save image</string>
+    <string name="msg_image_saved_successfully">Image has been saved to gallery</string>
+    <string name="msg_storage_permission_denied">Storage permission is needed to open Drawing.</string>
+    <string name="msg_camera_permission_denied">Camera permission is needed to open camera.</string>
+
 </resources>

@@ -197,7 +197,9 @@ class ChatMessageDate(var date: Long = 0L)
 class MsgBody {
     var message: String = empty
     var extra: String = empty
-    var imageUrl: String? = empty
+
+    @TypeConverters(Attachments.AttachmentsConverter::class)
+    var attachments: Array<Attachments>? = arrayOf()
 }
 
 /**
@@ -339,7 +341,7 @@ class MessageHistoryResultBody {
     var mentions: Array<Any?>? = null
     var channels: Array<Any?>? = null
     var file: FileType? = null
-    val attachments: Array<Attachments>? = null
+    val attachments: Array<Attachments> = arrayOf()
 }
 
 class FileType(val _id: String?, val name: String?, val type: String?)
@@ -354,7 +356,18 @@ class Attachments(val ts: String?,
                   val image_size: Long = 0,
                   val type: String?,
                   val description: String?,
-                  val image_dimensions: ImageDimension?)
+                  @Embedded
+                  val image_dimensions: ImageDimension?) {
+
+    class AttachmentsConverter {
+        @TypeConverter
+        fun toJson(attachments: Array<Attachments>): String = Gson().toJson(attachments)
+
+        @TypeConverter
+        fun fromJson(attachments: String): Array<Attachments> =
+                Gson().fromJson<Array<Attachments>>(attachments, object : TypeToken<Array<Attachments>>() {}.type)
+    }
+}
 
 class ImageDimension(val width: Int, val height: Int)
 

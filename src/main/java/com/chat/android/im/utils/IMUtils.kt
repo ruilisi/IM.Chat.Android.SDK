@@ -2,7 +2,11 @@ package com.chat.android.im.utils
 
 import android.content.Context
 import androidx.core.content.ContextCompat
+import com.chat.android.im.bean.MessageHistoryResult
+import com.chat.android.im.bean.MessageHistoryResultBody
+import com.chat.android.im.bean.MsgType
 import com.chat.android.im.config.RLS
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 fun getDrawableByName(context: Context, name: String): Int {
     return context.resources.getIdentifier(name, "drawable", context.packageName)
@@ -73,4 +77,41 @@ fun parseColor(context: Context, color: Int): Int {
     } else {
         ContextCompat.getColor(context, color)
     }
+}
+
+fun attachmentUrl(url: String?): String? {
+    if (url.isNullOrEmpty()) return null
+    if (url.startsWith("http")) return url
+
+    val fullUrl = "${RLS.getInstance().getDataConfig().base.replace("wss", "https").replace("/websocket", "")}$url"
+    val httpUrl = fullUrl.toHttpUrlOrNull()
+    httpUrl?.let {
+        return it.newBuilder().apply {
+            addQueryParameter("rc_uid", RLS.getInstance().getDataConfig().id)
+            addQueryParameter("rc_token", RLS.getInstance().getDataConfig().token)
+        }.build().toString()
+    }
+
+    // Fallback to baseUrl + url
+    return fullUrl
+}
+
+fun attachmentTitle(title: String?, vararg url: String?): CharSequence {
+    title?.let { return it }
+
+    url.filterNotNull().forEach {
+        val fileUrl = it.toHttpUrlOrNull()
+        fileUrl?.let { httpUrl ->
+            return httpUrl.pathSegments.last()
+        }
+    }
+
+    return ""
+}
+
+fun parseMsgType(data: MessageHistoryResultBody): MsgType {
+    if (data.file?.type?.startsWith("image") == true) {
+        return MsgType.IMAGE
+    }
+    return MsgType.TEXT
 }

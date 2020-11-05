@@ -1,6 +1,8 @@
 package com.chat.android.im.activity;
 
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -8,6 +10,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
@@ -23,20 +26,35 @@ import com.chat.android.im.config.RLS;
 import com.chat.android.im.config.UnifyUiConfig;
 import com.chat.android.im.database.DBInstance;
 import com.chat.android.im.databinding.ActivityChatBinding;
+import com.chat.android.im.helper.AndroidPermissionsHelper;
 import com.chat.android.im.helper.IChatMessage;
 import com.chat.android.im.utils.ChatUiHelper;
 import com.chat.android.im.utils.NetworkListener;
 import com.chat.android.im.utils.StatusBarUtil;
 import com.chat.android.im.viewmodel.ChatViewModel;
+import com.facebook.drawee.backends.pipeline.DraweeConfig;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.imagepipeline.backends.okhttp3.OkHttpImagePipelineConfigFactory;
+import com.facebook.imagepipeline.core.ImagePipelineConfig;
+import com.facebook.imagepipeline.listener.RequestLoggingListener;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
 
 import static com.chat.android.im.config.RLS.getEmpty;
 import static com.chat.android.im.utils.IMUtilsKt.isIMNull;
 import static com.chat.android.im.utils.IMUtilsKt.parseColor;
+import static com.chat.android.im.viewmodel.ChatViewModel.CONNECTED;
+import static com.chat.android.im.viewmodel.ChatViewModel.CONNECTING;
+import static com.chat.android.im.viewmodel.ChatViewModel.ERROR;
 
 /**
  * Created by Ryan on 2020/10/11.
@@ -157,13 +175,13 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         mViewModel.getConnectState().observe(this, integer -> {
 
-            if (integer == ChatViewModel.Companion.getERROR()) {
+            if (integer == ERROR) {
                 finish();
-            } else if (integer == ChatViewModel.Companion.getCONNECTING()) {
+            } else if (integer == CONNECTING) {
                 if (mAdapter.getData().isEmpty()) {
                     mBinding.swipeChat.setRefreshing(true);
                 }
-            } else if (integer == ChatViewModel.Companion.getCONNECTED()) {
+            } else if (integer == CONNECTED) {
 
             }
 
@@ -208,6 +226,9 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
         mViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
         mBinding.setViewModel(mViewModel);
         mBinding.setLifecycleOwner(this);
+
+        setupFresco();
+
 
         SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
         if (!preference.getString(KEY_USERID, getEmpty()).equals(RLS.getInstance().getDataConfig().getId())) {
@@ -319,6 +340,60 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
                 mViewModel.loadHistoryMessage(String.valueOf(dataList.get(0).getTs().getDate()), RLS.getInstance().getDataConfig().getPreLoadHistoryCount());
             } else {
                 mViewModel.loadLocalHistoryMsg(dataList.get(0));
+            }
+        }
+    }
+
+    private void setupFresco() {
+        Fresco.initialize(this, provideImagePipelineConfig(getApplicationContext(), provideOkHttpClient()), DraweeConfig.newBuilder().build());
+    }
+
+    private ImagePipelineConfig provideImagePipelineConfig(Context context, OkHttpClient okHttpClient) {
+        Set listeners = new HashSet();
+        listeners.add(new RequestLoggingListener());
+        return OkHttpImagePipelineConfigFactory.newBuilder(context, okHttpClient)
+                .setRequestListeners(listeners)
+                .setDownsampleEnabled(true)
+                .experiment().setPartialImageCachingEnabled(true).build();
+    }
+
+    private OkHttpClient provideOkHttpClient() {
+        return new OkHttpClient.Builder()
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .writeTimeout(15, TimeUnit.SECONDS)
+                .build();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case AndroidPermissionsHelper.CAMERA_CODE: {
+                if (grantResults.length!=0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted
+                } else {
+                    // permission denied
+                    Snackbar.make(
+                            mBinding.getRoot(),
+                            R.string.msg_camera_permission_denied,
+                            Snackbar.LENGTH_SHORT
+                    ).show();
+                }
+                break;
+            }
+            case AndroidPermissionsHelper.WRITE_EXTERNAL_STORAGE_CODE: {
+                if (grantResults.length!=0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted
+                } else {
+                    // permission denied
+                    Snackbar.make(
+                            mBinding.getRoot(),
+                            R.string.msg_storage_permission_denied,
+                            Snackbar.LENGTH_SHORT
+                    ).show();
+                }
+                break;
             }
         }
     }

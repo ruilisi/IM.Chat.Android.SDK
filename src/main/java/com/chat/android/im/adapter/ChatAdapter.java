@@ -16,11 +16,16 @@ import com.chat.android.im.bean.MsgStatus;
 import com.chat.android.im.bean.MsgType;
 import com.chat.android.im.config.RLS;
 import com.chat.android.im.config.UnifyUiConfig;
+import com.chat.android.im.helper.ImageHelper;
 import com.chat.android.im.utils.DateUtils;
-import com.chat.android.im.utils.GlideUtils;
+import com.chat.android.im.utils.IMUtilsKt;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.controller.AbstractDraweeController;
+import com.facebook.drawee.view.SimpleDraweeView;
 
 import java.util.List;
 
+import static com.chat.android.im.utils.IMUtilsKt.attachmentTitle;
 import static com.chat.android.im.utils.IMUtilsKt.parseColor;
 
 public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
@@ -93,7 +98,6 @@ public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
     protected void convert(BaseViewHolder helper, ChatMessage item) {
         setContent(helper, item);
         setStatus(helper, item);
-        setOnClick(helper, item);
     }
 
 
@@ -135,17 +139,6 @@ public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
             setTextMsgShow(helper, item);
         } else if (item.getMsgType().equals(MsgType.IMAGE)) {
             setImageMsgShow(helper, item);
-            //            ImageMsgBody msgBody = (ImageMsgBody) item.getBody();
-//            if (TextUtils.isEmpty(msgBody.getThumbPath())) {
-//                GlideUtils.loadChatImage(mContext, msgBody.getThumbUrl(), (ImageView) helper.getView(R.id.bivPic));
-//            } else {
-//                File file = new File(msgBody.getThumbPath());
-//                if (file.exists()) {
-//                    GlideUtils.loadChatImage(mContext, msgBody.getThumbPath(), (ImageView) helper.getView(R.id.bivPic));
-//                } else {
-//                    GlideUtils.loadChatImage(mContext, msgBody.getThumbUrl(), (ImageView) helper.getView(R.id.bivPic));
-//                }
-//            }
         } else if (item.getMsgType().equals(MsgType.VIDEO)) {
 //            VideoMsgBody msgBody = (VideoMsgBody) item.getBody();
 //            File file = new File(msgBody.getExtra());
@@ -177,7 +170,18 @@ public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
             timeView.setText(parseTime(item.getTimeShow().getDate()));
         }
 
-        GlideUtils.loadChatImage(mContext, msgBody.getImageUrl(), helper.getView(R.id.bivPic));
+        SimpleDraweeView simpleDraweeView = helper.getView(R.id.image_attachment);
+        String url = IMUtilsKt.attachmentUrl(msgBody.getAttachments()[0].getImage_url());
+        AbstractDraweeController controller = Fresco.newDraweeControllerBuilder()
+                .setUri(url)
+                .setAutoPlayAnimations(true)
+                .setOldController(simpleDraweeView.getController())
+                .build();
+        simpleDraweeView.setController(controller);
+        simpleDraweeView.setOnClickListener(v -> ImageHelper.INSTANCE.openImage(
+                v.getContext(),
+                url,
+                String.valueOf(attachmentTitle(msgBody.getAttachments()[0].getTitle(), url))));
     }
 
     private void setTextMsgShow(BaseViewHolder helper, ChatMessage item) {
@@ -237,14 +241,6 @@ public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
         } else {
             return DateUtils.getDateTimeStr2(t);
         }
-    }
-
-
-    private void setOnClick(BaseViewHolder helper, ChatMessage item) {
-//        MsgBody msgContent = item.getBody();
-//        if (msgContent instanceof AudioMsgBody) {
-//            helper.addOnClickListener(R.id.rlAudio);
-//        }
     }
 
 //    @Override

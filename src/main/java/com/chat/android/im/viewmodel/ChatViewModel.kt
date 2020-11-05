@@ -1,9 +1,14 @@
 package com.chat.android.im.viewmodel
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import android.provider.MediaStore
 import android.util.ArrayMap
+import androidx.core.content.FileProvider
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.chat.android.im.bean.*
@@ -18,6 +23,7 @@ import com.chat.android.im.helper.JWebSocketClient
 import com.chat.android.im.helper.RecycleViewScrollHelper
 import com.chat.android.im.message.*
 import com.chat.android.im.utils.LogUtils
+import com.chat.android.im.utils.parseMsgType
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +31,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.java_websocket.handshake.ServerHandshake
+import java.io.File
+import java.io.IOException
 import java.net.URI
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -36,12 +44,15 @@ import kotlin.concurrent.withLock
 class ChatViewModel : ViewModel() {
 
     companion object {
-        val IDLE = 0
-        val CONNECTING = 1
-        val CONNECTED = 2
-        val STOPPING = 3
-        val STOPPED = 4
-        val ERROR = 5
+        const val IDLE = 0
+        const val CONNECTING = 1
+        const val CONNECTED = 2
+        const val STOPPING = 3
+        const val STOPPED = 4
+        const val ERROR = 5
+
+        const val REQUEST_CODE_FOR_DRAW = 101
+        const val REQUEST_CODE_FOR_PERFORM_CAMERA = 102
     }
 
     var title: String? = null
@@ -273,13 +284,15 @@ class ChatViewModel : ViewModel() {
 
             if (!iChatMessage?.getItemList().isNullOrEmpty()) {
                 lastHistoryShowTimeStamp = iChatMessage?.getItemList()!!.first().ts.date
+            }else{
+                lastHistoryShowTimeStamp = System.currentTimeMillis()
             }
         } else {
 
             if (lastHistoryShowTimeStamp - chatMessage.ts.date > SEND_INTERVAL_NO_SHOW_TIME
                     && chatMessage.ts.date - firstHistoryShowTimeStamp > SEND_INTERVAL_NO_SHOW_TIME) {
-                lastHistoryShowTimeStamp = chatMessage.ts.date
-                chatMessage.timeShow.date = lastHistoryShowTimeStamp
+                firstHistoryShowTimeStamp = chatMessage.ts.date
+                chatMessage.timeShow.date = firstHistoryShowTimeStamp
             }
 
         }
@@ -340,12 +353,12 @@ class ChatViewModel : ViewModel() {
                             if (!none { it?.ts?.date == args[0].ts.`$date` }) return
                         }
                         this.count = this.count.inc()
-                        val receiveMessage = generateBaseReceiveMessage(MsgType.TEXT)
+                        val receiveMessage = generateBaseReceiveMessage(parseMsgType(args[0]))
                         receiveMessage.msgId = this.count
                         receiveMessage.msgBody.message = args[0].msg
                         receiveMessage.ts.date = args[0].ts.`$date`
                         receiveMessage._updatedAt.date = args[0]._updatedAt.`$date`
-
+                        receiveMessage.msgBody.attachments = args[0].attachments
                         MessageManager.syncWithLockSendMsg(initMsgShowTimeStamp(receiveMessage))
                     }
                 }
@@ -365,16 +378,13 @@ class ChatViewModel : ViewModel() {
                             val msgList = arrayListOf<ChatMessage>()
                             for (historyMsg in historyList) {
                                 this.count = this.count.inc()
-                                val receiveMessage = generateBaseReceiveMessage(if (historyMsg.file?.type?.startsWith("image") == true) MsgType.IMAGE else MsgType.TEXT)
+                                val receiveMessage = generateBaseReceiveMessage(parseMsgType(historyMsg))
                                 receiveMessage.msgId = this.count
                                 receiveMessage.msgStatus = if (historyMsg.u?._id == RLS.getInstance().getDataConfig().id) MsgStatus.SEND else MsgStatus.RECEIVE
                                 receiveMessage.msgBody.message = historyMsg.msg
                                 receiveMessage.ts.date = historyMsg.ts.`$date`
-                                receiveMessage.tsc.date = historyMsg.ts.`$date`
                                 receiveMessage._updatedAt.date = historyMsg._updatedAt.`$date`
-                                val url = attachmentUrl(if (!historyMsg.attachments.isNullOrEmpty()) historyMsg.attachments[0].image_url else null)
-                                println("-----------url:${url}")
-                                receiveMessage.msgBody.imageUrl = attachmentUrl(if (!historyMsg.attachments.isNullOrEmpty()) historyMsg.attachments[0].image_url else null)
+                                receiveMessage.msgBody.attachments = historyMsg.attachments
                                 msgList.add(receiveMessage)
                             }
 
@@ -436,18 +446,16 @@ class ChatViewModel : ViewModel() {
                             for (historyMsg in historyList) {
                                 if (!itemList.none { it?.ts?.date == historyMsg.ts.`$date` }) continue
                                 this.count = this.count.inc()
-                                val receiveMessage = generateBaseReceiveMessage(MsgType.TEXT)
+                                val receiveMessage = generateBaseReceiveMessage(parseMsgType(historyMsg))
                                 receiveMessage.msgId = this.count
                                 receiveMessage.msgStatus = if (historyMsg.u?._id == RLS.getInstance().getDataConfig().id) MsgStatus.SEND else MsgStatus.RECEIVE
                                 receiveMessage.msgBody.message = historyMsg.msg
                                 receiveMessage.ts.date = historyMsg.ts.`$date`
                                 receiveMessage._updatedAt.date = historyMsg._updatedAt.`$date`
+                                receiveMessage.msgBody.attachments = historyMsg.attachments
+
                                 msgList.add(initMsgShowTimeStamp(receiveMessage))
                             }
-
-//                            for (index in msgList.size - 1 downTo 0) {
-//                                initMsgShowTimeStamp(msgList[index])
-//                            }
 
                             MessageManager.syscWithLocakReceiveMissedHistoryMsg(msgList)
 
@@ -578,11 +586,5 @@ class ChatViewModel : ViewModel() {
                 }
             }
         }
-    }
-
-    private fun attachmentUrl(url: String?): String? {
-        if (url.isNullOrEmpty()) return null
-        if (url.startsWith("http")) return url
-        return "${RLS.getInstance().getDataConfig().base.replace("wss", "https").replace("/websocket", "")}$url"
     }
 }
