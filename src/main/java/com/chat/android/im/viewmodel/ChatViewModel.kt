@@ -383,6 +383,7 @@ class ChatViewModel : ViewModel() {
                                 receiveMessage.msgStatus = if (historyMsg.u?._id == RLS.getInstance().getDataConfig().id) MsgStatus.SEND else MsgStatus.RECEIVE
                                 receiveMessage.msgBody.message = historyMsg.msg
                                 receiveMessage.ts.date = historyMsg.ts.`$date`
+                                receiveMessage.tsc.date = historyMsg.ts.`$date`//only
                                 receiveMessage._updatedAt.date = historyMsg._updatedAt.`$date`
                                 receiveMessage.msgBody.attachments = historyMsg.attachments
                                 msgList.add(receiveMessage)
