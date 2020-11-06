@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -58,7 +59,7 @@
                 android:minHeight="@dimen/dp_54"
                 android:orientation="horizontal"
                 android:paddingLeft="@dimen/dp_20"
-                android:paddingRight="@dimen/dp_20">
+                android:paddingRight="@dimen/dp_10">
 
                 <ImageView
                     android:id="@+id/ivAudio"
@@ -69,14 +70,15 @@
                     android:visibility="gone" />
 
                 <RelativeLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:paddingTop="@dimen/dp_9"
                     android:paddingBottom="@dimen/dp_9">
 
                     <EditText
                         android:id="@+id/et_content"
-                        android:layout_width="@dimen/dp_265"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textMultiLine"
                         android:lineSpacingExtra="@dimen/dp_1"
@@ -111,15 +113,6 @@
                     android:src="@drawable/ic_emoji"
                     android:visibility="gone" />
 
-                <ImageView
-                    android:id="@+id/ivAdd"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_marginLeft="10px"
-                    android:layout_marginRight="14px"
-                    android:src="@drawable/ic_add"
-                    android:visibility="gone" />
-
                 <com.chat.android.im.view.StateButton
                     android:layout_width="50dp"
                     android:layout_height="30dp"
@@ -133,17 +126,29 @@
                     app:pressedBackgroundColor="#0f519b"
                     app:radius="5dp" />
 
+                <ImageView
+                    android:id="@+id/ivAdd"
+                    android:layout_width="@dimen/dp_50"
+                    android:layout_height="@dimen/dp_30"
+                    android:layout_gravity="center_vertical"
+                    android:paddingLeft="@dimen/dp_10"
+                    android:paddingRight="@dimen/dp_10"
+                    tools:src="@drawable/ic_add" />
+
                 <LinearLayout
+                    android:id="@+id/ll_send"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/dp_54"
                     android:orientation="horizontal"
-                    android:paddingTop="@dimen/dp_12">
+                    android:paddingTop="@dimen/dp_12"
+                    android:visibility="gone">
 
                     <TextView
                         android:id="@+id/btn_send"
                         android:layout_width="@dimen/dp_60"
                         android:layout_height="@dimen/dp_30"
                         android:layout_marginLeft="@dimen/dp_10"
+                        android:layout_marginRight="@dimen/dp_10"
                         android:gravity="center"
                         android:text="发送"
                         android:textColor="@color/im_white" />

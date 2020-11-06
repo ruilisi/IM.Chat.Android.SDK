@@ -22,13 +22,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import com.bumptech.glide.Glide;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chat.android.im.R;
 import com.chat.android.im.emoji.EmojiAdapter;
@@ -50,8 +50,8 @@ public class ChatUiHelper {
     private RelativeLayout mBottomLayout;//底部布局
     private LinearLayout mEmojiLayout;//表情布局
     private LinearLayout mAddLayout;//添加布局
-    private TextView mSendBtn;//发送按钮
-    private View mAddButton;//加号按钮
+    private View mSendBtn;//发送按钮
+    private ImageView mAddButton;//加号按钮
     private Button mAudioButton;//录音按钮
     private ImageView mAudioIv;//录音图片
 
@@ -191,11 +191,11 @@ public class ChatUiHelper {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (mEditText.getText().toString().trim().length() > 0) {
-//                    mSendBtn.setVisibility(View.VISIBLE);
-//                    mAddButton.setVisibility(View.GONE);
+                    mSendBtn.setVisibility(View.VISIBLE);
+                    mAddButton.setVisibility(View.GONE);
                 } else {
-//                    mSendBtn.setVisibility(View.GONE);
-//                    mAddButton.setVisibility(View.VISIBLE);
+                    mSendBtn.setVisibility(View.GONE);
+                    mAddButton.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -227,7 +227,7 @@ public class ChatUiHelper {
     }
 
     //绑定发送按钮
-    public ChatUiHelper bindttToSendButton(TextView sendbtn) {
+    public ChatUiHelper bindttToSendButton(View sendbtn) {
         mSendBtn = sendbtn;
         return this;
     }
@@ -265,9 +265,15 @@ public class ChatUiHelper {
     }
 
     private void hideAudioButton() {
-        mAudioButton.setVisibility(View.GONE);
-        mEditText.setVisibility(View.VISIBLE);
-        mAudioIv.setImageResource(R.drawable.ic_audio);
+        if (mAudioButton != null) {
+            mAudioButton.setVisibility(View.GONE);
+        }
+        if (mEditText != null) {
+            mEditText.setVisibility(View.VISIBLE);
+        }
+        if (mAudioIv != null) {
+            mAudioIv.setImageResource(R.drawable.ic_audio);
+        }
     }
 
 
@@ -339,7 +345,7 @@ public class ChatUiHelper {
 
 
     //绑定底部加号按钮
-    public ChatUiHelper bindToAddButton(View addButton) {
+    public ChatUiHelper bindToAddButton(ImageView addButton) {
         mAddButton = addButton;
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -373,13 +379,21 @@ public class ChatUiHelper {
         return this;
     }
 
+    private void changeAdImage(int ic_add) {
+        Glide.with(mAddButton).load(ic_add).into(mAddButton);
+    }
+
 
     private void hideMoreLayout() {
-        mAddLayout.setVisibility(View.GONE);
+        if (mAddLayout != null) {
+            mAddLayout.setVisibility(View.GONE);
+        }
     }
 
     private void showMoreLayout() {
-        mAddLayout.setVisibility(View.VISIBLE);
+        if (mAddLayout != null) {
+            mAddLayout.setVisibility(View.VISIBLE);
+        }
     }
 
 
@@ -409,13 +423,21 @@ public class ChatUiHelper {
 
 
     private void showEmotionLayout() {
-        mEmojiLayout.setVisibility(View.VISIBLE);
-        mIvEmoji.setImageResource(R.drawable.ic_keyboard);
+        if (mEmojiLayout != null) {
+            mEmojiLayout.setVisibility(View.VISIBLE);
+        }
+        if (mIvEmoji != null) {
+            mIvEmoji.setImageResource(R.drawable.ic_keyboard);
+        }
     }
 
     private void hideEmotionLayout() {
-        mEmojiLayout.setVisibility(View.GONE);
-        mIvEmoji.setImageResource(R.drawable.ic_emoji);
+        if (mEmojiLayout != null) {
+            mEmojiLayout.setVisibility(View.GONE);
+        }
+        if (mIvEmoji != null) {
+            mIvEmoji.setImageResource(R.drawable.ic_emoji);
+        }
     }
 
     /**

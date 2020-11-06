@@ -7,5 +7,8 @@
     <string name="msg_image_saved_successfully">Image has been saved to gallery</string>
     <string name="msg_storage_permission_denied">Storage permission is needed to open Drawing.</string>
     <string name="msg_camera_permission_denied">Camera permission is needed to open camera.</string>
+    <string name="camera">Camera</string>
+    <string name="Photo">photo</string>
+    <string name="File">File</string>
 
 </resources>

@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.bumptech.glide.Glide;
 import com.chat.android.im.R;
 import com.chat.android.im.adapter.ChatAdapter;
 import com.chat.android.im.bean.ChatMessage;
@@ -157,6 +158,8 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
             mBinding.titleView.commonToolbarTitle.
                     setTextSize(TypedValue.COMPLEX_UNIT_SP, mUiConfig.getNavTitleSize());
         }
+
+        Glide.with(this).load(R.drawable.ic_add_default).into(mBinding.ivAdd);
     }
 
     private void observerData() {
@@ -256,11 +259,12 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         ChatUiHelper mUiHelper = ChatUiHelper.with(this);
         mUiHelper.bindContentLayout(mBinding.llContent)
-                .bindttToSendButton(mBinding.btnSend)
+                .bindttToSendButton(mBinding.llSend)
                 .bindEditText(mBinding.etContent)
-                .bindBottomLayout(mBinding.bottomLayout);
+                .bindBottomLayout(mBinding.bottomLayout)
+                .bindToAddButton(mBinding.ivAdd)
+                .bindAddLayout(mBinding.llAdd.llAdd);
 //                .bindEmojiLayout(mBinding?.rlEmotion?.llEmoji)
-//                .bindAddLayout(mBinding?.llAdd?.llAdd)
 //                .bindToAddButton(mBinding?.ivAdd)
 //                .bindToEmojiButton(mBinding?.ivEmo)
 //                .bindAudioBtn(mBinding?.btnAudio)
@@ -279,7 +283,7 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
         });
 
         //发送
-        mBinding.btnSend.setOnClickListener(v -> {
+        mBinding.llSend.setOnClickListener(v -> {
             String content = mBinding.etContent.getText().toString().trim();
             mViewModel.clickSendMsg(content);
             mBinding.etContent.setText(getEmpty());
@@ -310,6 +314,7 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
                 ChatActivity.this.initChatMsgListView(chatMessageList, dismissRefreshLoading);
             }
         });
+
     }
 
     @Override
@@ -370,7 +375,7 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case AndroidPermissionsHelper.CAMERA_CODE: {
-                if (grantResults.length!=0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted
                 } else {
                     // permission denied
@@ -383,7 +388,7 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
                 break;
             }
             case AndroidPermissionsHelper.WRITE_EXTERNAL_STORAGE_CODE: {
-                if (grantResults.length!=0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted
                 } else {
                     // permission denied
