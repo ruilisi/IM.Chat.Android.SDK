@@ -4,8 +4,11 @@ import android.content.Context;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.chad.library.adapter.base.util.MultiTypeDelegate;
@@ -174,13 +177,18 @@ public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
             description.setVisibility(View.VISIBLE);
         }
 
-        String url = IMUtilsKt.attachmentUrl(msgBody.getAttachments()[0].getVideo_url());
-        FrameLayout viewAttachment = helper.getView(R.id.audio_video_attachment);
+        String videoUrl = IMUtilsKt.attachmentUrl(msgBody.getAttachments()[0].getVideo_url());
+        ImageView videoThumbnails = helper.getView(R.id.image_attachment);
+        RequestOptions options = new RequestOptions().frame(1);
+        Glide.with(videoThumbnails).load(videoUrl).apply(options).into(videoThumbnails);
+
+        FrameLayout viewAttachment = helper.getView(R.id.video_attachment);
         viewAttachment.setOnClickListener(v -> {
-            if (url != null && !url.isEmpty()) {
-                PlayerActivity.Companion.play(v.getContext(), url);
+            if (videoUrl != null && !videoUrl.isEmpty()) {
+                PlayerActivity.Companion.play(v.getContext(), videoUrl);
             }
         });
+
 
     }
 

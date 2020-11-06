@@ -1,11 +1,16 @@
 package com.chat.android.im.utils
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.media.MediaMetadataRetriever
 import androidx.core.content.ContextCompat
-import com.chat.android.im.bean.MessageHistoryResult
 import com.chat.android.im.bean.MessageHistoryResultBody
 import com.chat.android.im.bean.MsgType
 import com.chat.android.im.config.RLS
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 fun getDrawableByName(context: Context, name: String): Int {
@@ -116,4 +121,22 @@ fun parseMsgType(data: MessageHistoryResultBody): MsgType {
         return MsgType.VIDEO
     }
     return MsgType.TEXT
+}
+
+
+fun retrieveVideoFrameFromVideo(path: String?, thumb: ((bitmap: Bitmap?) -> Unit)) {
+    path?.let {
+        GlobalScope.launch(Dispatchers.IO) {
+            var mediaMetadataRetriever: MediaMetadataRetriever? = null
+            try {
+                mediaMetadataRetriever = MediaMetadataRetriever()
+                mediaMetadataRetriever.setDataSource(path, HashMap<String, String>())
+                thumb(mediaMetadataRetriever.frameAtTime)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                mediaMetadataRetriever?.release()
+            }
+        }
+    }
 }

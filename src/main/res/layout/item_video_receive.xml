@@ -72,13 +72,19 @@
                 tools:visibility="visible" />
 
             <FrameLayout
-                android:id="@+id/audio_video_attachment"
+                android:id="@+id/video_attachment"
                 android:layout_width="@dimen/dp_250"
                 android:layout_height="150dp"
                 android:layout_below="@id/file_description"
                 android:background="@color/im_black"
                 android:clickable="true"
                 android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/image_attachment"
+                    android:layout_width="@dimen/dp_250"
+                    android:layout_height="150dp"
+                    android:scaleType="centerCrop" />
 
                 <ImageView
                     android:id="@+id/play_button"

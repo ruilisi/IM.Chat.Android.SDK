@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.TextureView
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import com.chat.android.im.R
@@ -69,6 +70,7 @@ class PlayerActivity : AppCompatActivity() {
             player.playWhenReady = playWhenReady
             player.seekTo(currentWindow, playbackPosition)
             isPlayerInitialized = true
+
         }
         val uri = Uri.parse(videoUrl)
         val mediaSource = buildMediaSource(uri)
@@ -85,7 +87,7 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun buildMediaSource(uri: Uri): MediaSource = ExtractorMediaSource(uri, DefaultHttpDataSourceFactory("rocket-chat-android-player"), DefaultExtractorsFactory(), null, null)
+    private fun buildMediaSource(uri: Uri): MediaSource = ExtractorMediaSource(uri, DefaultHttpDataSourceFactory("im-chat-android-player"), DefaultExtractorsFactory(), null, null)
 
     private fun hideSystemUi() {
         // Read the docs for detailed explanation: https://developer.android.com/training/basics/firstapp/starting-activity.html and https://developer.android.com/design/patterns/fullscreen.html
