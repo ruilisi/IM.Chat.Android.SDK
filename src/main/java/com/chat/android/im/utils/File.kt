@@ -38,7 +38,8 @@ fun ChatActivity.uploadImage(roomId: String, mimeType: String, uri: Uri, bitmap:
                     showInvalidFileMessage()
                 } else {
                     val byteArray =
-                            bitmap.getByteArray(mimeType, 100, Int.MAX_VALUE)
+                            bitmap.getByteArray(mimeType, 100, 1024 * 1024)
+                    println("------------00000:${byteArray.size}")
                     retryIO("uploadFile($roomId, $fileName, $mimeType") {
                         uploadFile(
                                 roomId,
@@ -53,6 +54,7 @@ fun ChatActivity.uploadImage(roomId: String, mimeType: String, uri: Uri, bitmap:
                 }
             }
         } catch (ex: Exception) {
+            LogUtils.d(msg = ex.message ?: "")
             when (ex) {
                 is RocketChatException -> showMessage(ex)
                 else -> showGenericErrorMessage()
@@ -121,7 +123,6 @@ private suspend fun ChatActivity.uploadFile(
                 .addFormDataPart("msg", msg)
                 .addFormDataPart("description", description)
                 .build()
-
         uploadFile(roomId, body)
     }
 }
@@ -131,7 +132,6 @@ private suspend fun ChatActivity.uploadFile(roomId: String, body: RequestBody) {
             .addPathSegment(roomId)
             .build()
     val request = requestBuilderForAuthenticatedMethods(httpUrl).post(body).build()
-
     handleRestCall<Any>(request, Any::class.java, largeFile = true)
 }
 

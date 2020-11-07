@@ -19,7 +19,7 @@ import kotlin.jvm.Throws
 fun Activity.createImageFile(): File {
     return File.createTempFile(
             "${LocalDateTime.now()}_",
-            ".png",
+            ".jpeg",
             getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     )
 }
@@ -39,15 +39,13 @@ suspend fun Bitmap.getByteArray(
         maxFileSizeAllowed: Int
 ): ByteArray {
     lateinit var byteArray: ByteArray
-
     compressImageAndGetByteArray(mimeType, quality)?.let {
         if (it.size > maxFileSizeAllowed && maxFileSizeAllowed !in -1..0) {
-            getByteArray(mimeType, quality - 10, maxFileSizeAllowed)
+            byteArray = getByteArray(mimeType, quality - 10, maxFileSizeAllowed)
         } else {
             byteArray = it
         }
     }
-
     return byteArray
 }
 
@@ -67,7 +65,6 @@ suspend fun Bitmap.compressImageAndGetByteArray(mimeType: String, quality: Int =
             byteArray = byteArrayOutputStream.toByteArray()
         }
     }
-
     return byteArray
 }
 
