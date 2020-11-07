@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="data_is_null">缺少必要数据</string>
+    <string name="data_is_null">need more arguments</string>
     <string name="action_save_to_gallery">Save to gallery</string>
     <string name="msg_image_saved_failed">Failed to save image</string>
     <string name="msg_image_saved_successfully">Image has been saved to gallery</string>
@@ -10,5 +10,11 @@
     <string name="camera">Camera</string>
     <string name="Photo">photo</string>
     <string name="File">File</string>
+    <string name="msg_upload_file">Upload file</string>
+    <string name="msg_invalid_file">Invalid file</string>
+    <string name="msg_generic_error">Sorry, an error has occurred, please try again</string>
+    <string name="max_file_size_exceeded">File size %1$d bytes exceeded max upload size of %2$d bytes</string>
+    <string name="Send">Send</string>
+    <string name="msg_file_description">File description</string>
 
 </resources>

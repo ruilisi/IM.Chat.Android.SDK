@@ -1,14 +1,16 @@
 package com.chat.android.im.viewmodel
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.provider.MediaStore
 import android.util.ArrayMap
+import android.view.View
 import androidx.core.content.FileProvider
+import androidx.core.view.isVisible
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.chat.android.im.bean.*
@@ -17,22 +19,24 @@ import com.chat.android.im.config.RLS.Companion.empty
 import com.chat.android.im.constant.HEART_BEAT_RATE
 import com.chat.android.im.constant.SEND_INTERVAL_NO_SHOW_TIME
 import com.chat.android.im.database.DBInstance
+import com.chat.android.im.helper.AndroidPermissionsHelper.getCameraPermission
+import com.chat.android.im.helper.AndroidPermissionsHelper.hasCameraPermission
 import com.chat.android.im.helper.IChatMessage
 import com.chat.android.im.helper.IChatMessageRefresh
 import com.chat.android.im.helper.JWebSocketClient
 import com.chat.android.im.helper.RecycleViewScrollHelper
 import com.chat.android.im.message.*
+import com.chat.android.im.utils.CancelStrategy
 import com.chat.android.im.utils.LogUtils
+import com.chat.android.im.utils.createImageFile
 import com.chat.android.im.utils.parseMsgType
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.java_websocket.handshake.ServerHandshake
 import java.io.File
 import java.io.IOException
+import java.lang.Runnable
 import java.net.URI
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -53,6 +57,8 @@ class ChatViewModel : ViewModel() {
 
         const val REQUEST_CODE_FOR_DRAW = 101
         const val REQUEST_CODE_FOR_PERFORM_CAMERA = 102
+        const val REQUEST_CODE_FOR_PERFORM_SAF = 42
+
     }
 
     var title: String? = null
@@ -75,6 +81,8 @@ class ChatViewModel : ViewModel() {
     private var lastHistoryShowTimeStamp = 0L
     private var firstHistoryShowTimeStamp = 0L
     private var lastShowTimeStamp = 0L
+    var takenPhotoUri: Uri? = null
+    val job = Job()
 
     init {
         MessageManager.setChatMessageRefreshListener(object : IChatMessageRefresh {
@@ -284,7 +292,7 @@ class ChatViewModel : ViewModel() {
 
             if (!iChatMessage?.getItemList().isNullOrEmpty()) {
                 lastHistoryShowTimeStamp = iChatMessage?.getItemList()!!.first().ts.date
-            }else{
+            } else {
                 lastHistoryShowTimeStamp = System.currentTimeMillis()
             }
         } else {
@@ -585,6 +593,33 @@ class ChatViewModel : ViewModel() {
                         loadHistoryMessage(first().ts.date.toString(), RLS.getInstance().getDataConfig().preLoadHistoryCount - size)
                     }
                 }
+            }
+        }
+    }
+
+    fun openCamera(context: Activity) {
+        if (hasCameraPermission(context)) {
+            dispatchTakePictureIntent(context)
+        } else {
+            getCameraPermission(context)
+        }
+    }
+
+    fun dispatchTakePictureIntent(activity: Activity) {
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+            // Create the File where the photo should go
+            val photoFile: File? = try {
+                activity?.createImageFile()
+            } catch (ex: IOException) {
+                null
+            }
+            // Continue only if the File was successfully created
+            photoFile?.also {
+                takenPhotoUri = FileProvider.getUriForFile(
+                        activity, "${activity?.packageName}.fileprovider", it
+                )
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, takenPhotoUri)
+                activity.startActivityForResult(takePictureIntent, REQUEST_CODE_FOR_PERFORM_CAMERA)
             }
         }
     }

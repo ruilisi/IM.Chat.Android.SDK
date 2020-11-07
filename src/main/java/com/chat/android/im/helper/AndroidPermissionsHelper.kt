@@ -29,11 +29,8 @@ object AndroidPermissionsHelper {
         return checkPermission(context, Manifest.permission.CAMERA)
     }
 
-    fun getCameraPermission(fragment: Fragment) {
-        fragment.requestPermissions(
-                arrayOf(Manifest.permission.CAMERA),
-                CAMERA_CODE
-        )
+    fun getCameraPermission(activity: Activity) {
+        requestPermission(activity, Manifest.permission.CAMERA, CAMERA_CODE)
     }
 
     fun hasWriteExternalStoragePermission(context: Context): Boolean {

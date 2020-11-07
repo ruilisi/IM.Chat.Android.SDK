@@ -246,3 +246,7 @@
 -keep class org.** {*; }
 -dontwarn org.**
 
+#AVLoadingIndicatorView
+-keep class com.wang.avi.** { *; }
+-keep class com.wang.avi.indicators.** { *; }
+

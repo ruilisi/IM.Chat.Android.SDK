@@ -1,6 +1,8 @@
 package com.chat.android.im.activity;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
@@ -29,9 +31,13 @@ import com.chat.android.im.database.DBInstance;
 import com.chat.android.im.databinding.ActivityChatBinding;
 import com.chat.android.im.helper.AndroidPermissionsHelper;
 import com.chat.android.im.helper.IChatMessage;
+import com.chat.android.im.utils.CancelStrategy;
 import com.chat.android.im.utils.ChatUiHelper;
+import com.chat.android.im.utils.DialogKt;
 import com.chat.android.im.utils.NetworkListener;
 import com.chat.android.im.utils.StatusBarUtil;
+import com.chat.android.im.utils.UiKt;
+import com.chat.android.im.utils.UriInteractor;
 import com.chat.android.im.viewmodel.ChatViewModel;
 import com.facebook.drawee.backends.pipeline.DraweeConfig;
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -39,6 +45,8 @@ import com.facebook.imagepipeline.backends.okhttp3.OkHttpImagePipelineConfigFact
 import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.facebook.imagepipeline.listener.RequestLoggingListener;
 import com.google.android.material.snackbar.Snackbar;
+import com.jakewharton.threetenabp.AndroidThreeTen;
+import com.squareup.moshi.Moshi;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -56,6 +64,8 @@ import static com.chat.android.im.utils.IMUtilsKt.parseColor;
 import static com.chat.android.im.viewmodel.ChatViewModel.CONNECTED;
 import static com.chat.android.im.viewmodel.ChatViewModel.CONNECTING;
 import static com.chat.android.im.viewmodel.ChatViewModel.ERROR;
+import static com.chat.android.im.viewmodel.ChatViewModel.REQUEST_CODE_FOR_PERFORM_CAMERA;
+import static com.chat.android.im.viewmodel.ChatViewModel.REQUEST_CODE_FOR_PERFORM_SAF;
 
 /**
  * Created by Ryan on 2020/10/11.
@@ -68,6 +78,12 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
     private ActivityChatBinding mBinding;
     private ChatViewModel mViewModel;
     private ChatAdapter mAdapter;
+    public CancelStrategy strategy;
+    public String citation;
+    public UriInteractor uriInteractor;
+    public OkHttpClient okHttpClient;
+    public Moshi moshi;
+    private ChatUiHelper mUiHelper;
 
     private View.OnLayoutChangeListener onLayoutChangeListener = (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
         if (bottom < oldBottom && mBinding != null) {
@@ -229,8 +245,12 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
         mViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
         mBinding.setViewModel(mViewModel);
         mBinding.setLifecycleOwner(this);
-
+        strategy = new CancelStrategy(this, mViewModel.getJob());
+        okHttpClient = provideOkHttpClient();
+        uriInteractor = new UriInteractor(getApplicationContext());
+        moshi = new Moshi.Builder().build();
         setupFresco();
+        AndroidThreeTen.init(this);
 
 
         SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
@@ -251,13 +271,22 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
         mBinding.swipeChat.setRefreshing(true);
         mViewModel.loadLocalHistoryMsg(null);
 
+        mBinding.llAdd.rlCamera.setOnClickListener(v ->
+                {
+                    mUiHelper.hideBottomLayout(false);
+                    mUiHelper.hideSoftInput();
+                    mBinding.etContent.clearFocus();
+                    mViewModel.openCamera(ChatActivity.this);
+                }
+        );
+
     }
 
     private void initChatUi() {
 
         mBinding.rvChatList.setItemAnimator(null);
 
-        ChatUiHelper mUiHelper = ChatUiHelper.with(this);
+        mUiHelper = ChatUiHelper.with(this);
         mUiHelper.bindContentLayout(mBinding.llContent)
                 .bindttToSendButton(mBinding.llSend)
                 .bindEditText(mBinding.etContent)
@@ -330,10 +359,6 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
     }
 
-    private void showToast(int toast) {
-        Toast.makeText(this, toast, Toast.LENGTH_SHORT).show();
-    }
-
     @Override
     public void onRefresh() {
         mBinding.swipeChat.setRefreshing(true);
@@ -350,7 +375,7 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void setupFresco() {
-        Fresco.initialize(this, provideImagePipelineConfig(getApplicationContext(), provideOkHttpClient()), DraweeConfig.newBuilder().build());
+        Fresco.initialize(this, provideImagePipelineConfig(getApplicationContext(), okHttpClient), DraweeConfig.newBuilder().build());
     }
 
     private ImagePipelineConfig provideImagePipelineConfig(Context context, OkHttpClient okHttpClient) {
@@ -377,6 +402,7 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
             case AndroidPermissionsHelper.CAMERA_CODE: {
                 if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted
+                    mViewModel.dispatchTakePictureIntent(this);
                 } else {
                     // permission denied
                     Snackbar.make(
@@ -401,5 +427,87 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
                 break;
             }
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case REQUEST_CODE_FOR_PERFORM_CAMERA: {
+                    if (mViewModel.getTakenPhotoUri() != null) {
+                        DialogKt.showFileAttachmentDialog(ChatActivity.this, mViewModel.getTakenPhotoUri());
+                    }
+                }
+                case REQUEST_CODE_FOR_PERFORM_SAF: {
+                }
+            }
+        }
+    }
+
+
+    public void showLoading() {
+        UiKt.ui(this, activity -> {
+            mBinding.viewLoading.setVisibility(View.VISIBLE);
+            return null;
+        });
+    }
+
+    public void hideLoading() {
+        UiKt.ui(this, activity -> {
+            mBinding.viewLoading.setVisibility(View.GONE);
+            return null;
+        });
+    }
+
+    public void showMessage(String message) {
+        UiKt.ui(this, activity -> {
+            showToast(message);
+            return null;
+        });
+    }
+
+    public void showMessage(int resId) {
+        UiKt.ui(this, activity -> {
+            showToast(resId);
+            return null;
+        });
+    }
+
+    public void showMessage(Exception ex) {
+        if (ex.getMessage() == null || ex.getMessage().isEmpty()) {
+            showGenericErrorMessage();
+        } else {
+            showMessage(ex.getMessage());
+        }
+    }
+
+    public void showGenericErrorMessage() {
+        UiKt.ui(this, activity -> {
+            showMessage(getString(R.string.msg_generic_error));
+            return null;
+        });
+    }
+
+    public void showInvalidFileMessage() {
+        UiKt.ui(this, activity -> {
+            showMessage(getString(R.string.msg_invalid_file));
+            return null;
+        });
+    }
+
+    public void showInvalidFileSize(int fileSize, int maxFileSize) {
+        UiKt.ui(this, activity -> {
+            showMessage(getString(R.string.max_file_size_exceeded, fileSize, maxFileSize));
+            return null;
+        });
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showToast(int toast) {
+        Toast.makeText(this, toast, Toast.LENGTH_SHORT).show();
     }
 }

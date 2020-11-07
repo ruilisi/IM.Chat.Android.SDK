@@ -88,7 +88,7 @@ fun attachmentUrl(url: String?): String? {
     if (url.isNullOrEmpty()) return null
     if (url.startsWith("http")) return url
 
-    val fullUrl = "${RLS.getInstance().getDataConfig().base.replace("wss", "https").replace("/websocket", "")}$url"
+    val fullUrl = "${restUrl()}$url"
     val httpUrl = fullUrl.toHttpUrlOrNull()
     httpUrl?.let {
         return it.newBuilder().apply {
@@ -140,3 +140,7 @@ fun retrieveVideoFrameFromVideo(path: String?, thumb: ((bitmap: Bitmap?) -> Unit
         }
     }
 }
+
+fun restUrl() = RLS.getInstance().getDataConfig().base.replace("wss", "https").replace("/websocket", "")
+fun authToken() = RLS.getInstance().getDataConfig().token
+fun userId() = RLS.getInstance().getDataConfig().id
