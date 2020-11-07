@@ -1,11 +1,14 @@
 package com.chat.android.im.helper
 
+import android.content.ContentValues
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.media.MediaScannerConnection
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.ViewGroup
@@ -119,31 +122,44 @@ object ImageHelper {
             checkWritingPermission(context)
             return false
         }
+        var message = context.getString(R.string.msg_image_saved_successfully)
         if (ImagePipelineFactory.getInstance().mainFileCache.hasKey(cacheKey)) {
-            val resource = ImagePipelineFactory.getInstance().mainFileCache.getResource(cacheKey)
-            val cachedFile = (resource as FileBinaryResource).file
-            val imageFormat = ImageFormatChecker.getImageFormat(resource.openStream())
-            val imageDir = "${Environment.DIRECTORY_PICTURES}/IM.Chat Images/"
-            val imagePath = Environment.getExternalStoragePublicDirectory(imageDir)
-            val imageFile =
-                    File(imagePath, "${cachedFile.nameWithoutExtension}.${imageFormat.fileExtension}")
-            imagePath.mkdirs()
-            imageFile.createNewFile()
             try {
-                cachedFile.copyTo(imageFile, true)
-                MediaScannerConnection.scanFile(
-                        context,
-                        arrayOf(imageFile.absolutePath),
-                        null
-                ) { path, uri ->
-                    LogUtils.d(msg = "Scanned $path:")
-                    LogUtils.d(msg = "-> uri=$uri")
+                val resource = ImagePipelineFactory.getInstance().mainFileCache.getResource(cacheKey)
+                val cachedFile = (resource as FileBinaryResource).file
+                val imageFormat = ImageFormatChecker.getImageFormat(resource.openStream())
+                val imageDir = "${Environment.DIRECTORY_PICTURES}/Rocket.Chat Images/"
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+                    println("------------------------4:"+"${cachedFile.nameWithoutExtension}.${imageFormat.fileExtension}")
+
+//                    val values = ContentValues()
+//                    values.put(MediaStore.Images.Media.DISPLAY_NAME, "image_screenshot.jpg")
+//                    values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+//                    values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+//                    val uri: Uri? = context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+
+                } else {
+                    val imagePath = Environment.getExternalStoragePublicDirectory(imageDir)
+                    val imageFile =
+                            File(imagePath, "${cachedFile.nameWithoutExtension}.${imageFormat.fileExtension}")
+                    imagePath.mkdirs()
+                    imageFile.createNewFile()
+                    cachedFile.copyTo(imageFile, true)
+                    MediaScannerConnection.scanFile(
+                            context,
+                            arrayOf(imageFile.absolutePath),
+                            null
+                    ) { path, uri ->
+                        LogUtils.d(msg = "Scanned $path:")
+                        LogUtils.d(msg = "-> uri=$uri")
+                    }
                 }
+
             } catch (ex: Exception) {
-                val message = context.getString(R.string.msg_image_saved_failed)
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                message = context.getString(R.string.msg_image_saved_failed)
             } finally {
-                val message = context.getString(R.string.msg_image_saved_successfully)
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             }
         }

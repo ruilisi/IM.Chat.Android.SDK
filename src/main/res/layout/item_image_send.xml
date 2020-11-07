@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/ll_text_send"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -12,9 +13,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:textColor="#999999"
-        android:textSize="12dp"
-        android:visibility="gone" />
+        android:paddingTop="@dimen/dp_10"
+        android:paddingBottom="@dimen/dp_10"
+        android:textSize="@dimen/sp_12" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -30,15 +31,19 @@
             android:layout_alignParentRight="true"
             android:layout_marginLeft="5dp"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_head_default_right" />
+            android:src="@drawable/ic_head_default_right"
+            android:visibility="gone" />
 
 
         <RelativeLayout
             android:id="@+id/chat_item_layout_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:layout_toLeftOf="@id/chat_item_header"
+            android:layout_marginTop="@dimen/dp_5"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="@dimen/dp_5"
             android:gravity="right|center_vertical"
             android:orientation="horizontal">
 
@@ -52,11 +57,31 @@
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
                 android:transitionName="sharedView"
+                android:visibility="gone"
                 app:angle="6dp"
                 app:arrowHeight="8dp"
                 app:arrowLocation="right"
                 app:arrowPosition="15dp"
                 app:arrowWidth="5dp" />
+
+            <TextView
+                android:id="@+id/file_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:paddingBottom="@dimen/dp_5"
+                android:visibility="gone"
+                tools:text="Some description"
+                tools:visibility="visible" />
+
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/image_attachment"
+                android:layout_width="@dimen/dp_250"
+                android:layout_height="150dp"
+                android:layout_below="@id/file_description"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/image_dummy"
+                fresco:actualImageScaleType="centerCrop" />
 
         </RelativeLayout>
 
@@ -70,7 +95,7 @@
             android:layout_toLeftOf="@+id/chat_item_layout_content"
             android:focusable="false"
             android:src="@drawable/msg_state_fail_resend"
-            android:visibility="invisible" />
+            android:visibility="gone" />
 
         <ProgressBar
             android:id="@+id/chat_item_progress"
@@ -80,7 +105,7 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="10dp"
             android:layout_toLeftOf="@+id/chat_item_layout_content"
-            android:visibility="invisible" />
+            android:visibility="gone" />
     </RelativeLayout>
 
 </LinearLayout>

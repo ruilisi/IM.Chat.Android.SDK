@@ -193,7 +193,6 @@ public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
     }
 
     private void setImageMsgShow(BaseViewHolder helper, ChatMessage item) {
-
         MsgBody msgBody = item.getMsgBody();
         TextView timeView = helper.getView(R.id.item_tv_time);
         if (item.getTimeShow().getDate() == 0) {
