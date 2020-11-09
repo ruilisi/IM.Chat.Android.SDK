@@ -363,6 +363,7 @@ class ChatViewModel : ViewModel() {
                         this.count = this.count.inc()
                         val receiveMessage = generateBaseReceiveMessage(parseMsgType(args[0]))
                         receiveMessage.msgId = this.count
+                        receiveMessage.msgStatus = if (args[0].u?._id == RLS.getInstance().getDataConfig().id) MsgStatus.SEND else MsgStatus.RECEIVE
                         receiveMessage.msgBody.message = args[0].msg
                         receiveMessage.ts.date = args[0].ts.`$date`
                         receiveMessage._updatedAt.date = args[0]._updatedAt.`$date`

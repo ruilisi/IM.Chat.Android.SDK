@@ -205,7 +205,14 @@ public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
         }
 
         TextView description = helper.getView(R.id.file_description);
-        String descriptionText = msgBody.getAttachments()[0].getDescription();
+        String descriptionText = "";
+        if (item.getMsgStatus() == MsgStatus.RECEIVE) {
+            descriptionText = msgBody.getAttachments()[0].getDescription();
+        } else {
+            descriptionText = msgBody.getMessage();
+        }
+
+
         if (descriptionText == null || descriptionText.isEmpty()) {
             description.setVisibility(View.GONE);
         } else {
