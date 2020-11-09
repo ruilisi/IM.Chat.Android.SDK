@@ -31,6 +31,7 @@ import com.chat.android.im.database.DBInstance;
 import com.chat.android.im.databinding.ActivityChatBinding;
 import com.chat.android.im.helper.AndroidPermissionsHelper;
 import com.chat.android.im.helper.IChatMessage;
+import com.chat.android.im.helper.ImageHelper;
 import com.chat.android.im.utils.CancelStrategy;
 import com.chat.android.im.utils.ChatUiHelper;
 import com.chat.android.im.utils.DialogKt;
@@ -413,9 +414,10 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
                 }
                 break;
             }
-            case AndroidPermissionsHelper.WRITE_EXTERNAL_STORAGE_CODE: {
+            case AndroidPermissionsHelper.WRITE_EXTERNAL_STORAGE_CODE_IMAGE: {
                 if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted
+                    ImageHelper.INSTANCE.saveImage(this);
                 } else {
                     // permission denied
                     Snackbar.make(

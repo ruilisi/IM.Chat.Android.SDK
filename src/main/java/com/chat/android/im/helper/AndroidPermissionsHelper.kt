@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 
 object AndroidPermissionsHelper {
 
-    const val WRITE_EXTERNAL_STORAGE_CODE = 1
+    const val WRITE_EXTERNAL_STORAGE_CODE_IMAGE = 1
     const val CAMERA_CODE = 2
 
     private fun checkPermission(context: Context, permission: String): Boolean {
@@ -37,20 +37,20 @@ object AndroidPermissionsHelper {
         return checkPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 
-    fun getWriteExternalStoragePermission(fragment: Fragment) {
+    fun getWriteExternalStoragePermission(fragment: Fragment,requestCode: Int) {
         fragment.requestPermissions(
                 arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                WRITE_EXTERNAL_STORAGE_CODE
+                requestCode
         )
     }
 
-    fun checkWritingPermission(context: Context) {
+    fun checkWritingPermission(context: Context,requestCode: Int) {
         if (context is ContextThemeWrapper) {
             val activity = if (context.baseContext is Activity) context.baseContext as Activity else context as Activity
             requestPermission(
                     activity,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    WRITE_EXTERNAL_STORAGE_CODE
+                    requestCode
             )
         }
     }
