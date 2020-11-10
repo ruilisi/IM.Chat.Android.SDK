@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
@@ -35,7 +37,9 @@ import com.chat.android.im.helper.ImageHelper;
 import com.chat.android.im.utils.CancelStrategy;
 import com.chat.android.im.utils.ChatUiHelper;
 import com.chat.android.im.utils.DialogKt;
+import com.chat.android.im.utils.GlideEngine;
 import com.chat.android.im.utils.NetworkListener;
+import com.chat.android.im.utils.PictureSelectorEngineImp;
 import com.chat.android.im.utils.StatusBarUtil;
 import com.chat.android.im.utils.UiKt;
 import com.chat.android.im.utils.UriInteractor;
@@ -47,6 +51,14 @@ import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.facebook.imagepipeline.listener.RequestLoggingListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.jakewharton.threetenabp.AndroidThreeTen;
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.app.IApp;
+import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.engine.PictureSelectorEngine;
+import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.language.LanguageConfig;
+import com.luck.picture.lib.listener.OnResultCallbackListener;
 import com.squareup.moshi.Moshi;
 
 import org.jetbrains.annotations.NotNull;
@@ -71,7 +83,7 @@ import static com.chat.android.im.viewmodel.ChatViewModel.REQUEST_CODE_FOR_PERFO
 /**
  * Created by Ryan on 2020/10/11.
  */
-public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class ChatActivity extends AppCompatActivity implements IApp, SwipeRefreshLayout.OnRefreshListener {
 
     public static final String KEY_USERID = "KEY_USERID";
     public static long localMessageCount = 0L;
@@ -252,7 +264,10 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
         moshi = new Moshi.Builder().build();
         setupFresco();
         AndroidThreeTen.init(this);
-
+//        PictureAppMaster.getInstance().setApp(this);
+//        PictureSelectorCrashUtils.init((t, e) -> {
+//            // Crash之后的一些操作可再此处理，没有就忽略...
+//        });
 
         SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
         if (!preference.getString(KEY_USERID, getEmpty()).equals(RLS.getInstance().getDataConfig().getId())) {
@@ -278,6 +293,15 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
                     mUiHelper.hideSoftInput();
                     mBinding.etContent.clearFocus();
                     mViewModel.openCamera(ChatActivity.this);
+                }
+        );
+
+        mBinding.llAdd.rlPhoto.setOnClickListener(v ->
+                {
+                    mUiHelper.hideBottomLayout(false);
+                    mUiHelper.hideSoftInput();
+                    mBinding.etContent.clearFocus();
+                    openPhoto();
                 }
         );
 
@@ -447,6 +471,42 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
     }
 
+    public void openPhoto() {
+
+        PictureSelector.create(this)
+                .openGallery(PictureMimeType.ofImage())
+                .imageEngine(GlideEngine.createGlideEngine())
+                .selectionMode(PictureConfig.SINGLE)
+                .isPageStrategy(false)
+                .isWeChatStyle(true)
+                .isCamera(false)
+                .setLanguage(LanguageConfig.ENGLISH)
+                .forResult(new OnResultCallbackListener<LocalMedia>() {
+                    @Override
+                    public void onResult(List<LocalMedia> result) {
+                        if (result != null && result.size() == 1) {
+                            LocalMedia localMedia = result.get(0);
+                            String path = "";
+                            if (TextUtils.isEmpty(path)) {
+                                path = localMedia.getAndroidQToPath();
+                            }
+                            if (TextUtils.isEmpty(path)) {
+                                path = localMedia.getPath();
+                            }
+                            if (!TextUtils.isEmpty(path)) {
+                                DialogKt.showFileAttachmentDialog(ChatActivity.this, Uri.parse(localMedia.getRealPath()));
+                            } else {
+                                showMessage(R.string.app_name);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
+    }
 
     public void showLoading() {
         UiKt.ui(this, activity -> {
@@ -511,5 +571,15 @@ public class ChatActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private void showToast(int toast) {
         Toast.makeText(this, toast, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public Context getAppContext() {
+        return getApplicationContext();
+    }
+
+    @Override
+    public PictureSelectorEngine getPictureSelectorEngine() {
+        return new PictureSelectorEngineImp();
     }
 }

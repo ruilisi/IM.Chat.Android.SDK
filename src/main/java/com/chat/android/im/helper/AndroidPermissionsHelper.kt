@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 object AndroidPermissionsHelper {
 
     const val WRITE_EXTERNAL_STORAGE_CODE_IMAGE = 1
+    const val WRITE_EXTERNAL_STORAGE_CODE_PHOTO = 2
     const val CAMERA_CODE = 2
 
     private fun checkPermission(context: Context, permission: String): Boolean {

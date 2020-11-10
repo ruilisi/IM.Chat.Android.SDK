@@ -15,6 +15,8 @@
     <string name="msg_generic_error">Sorry, an error has occurred, please try again</string>
     <string name="max_file_size_exceeded">File size %1$d bytes exceeded max upload size of %2$d bytes</string>
     <string name="Send">Send</string>
+    <string name="msg_file_description">File description</string>
+    <string name="msg_upload_file_error">File upload error</string>
 
 
 </resources>

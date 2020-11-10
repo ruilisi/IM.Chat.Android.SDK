@@ -55,7 +55,7 @@ fun ChatActivity.showFileAttachmentDialog(uri: Uri) {
                     Glide
                             .with(this)
                             .asBitmap()
-                            .load(uri)
+                            .load(uri.toString())
                             .apply(RequestOptions().fitCenter())
                             .into(object : SimpleTarget<Bitmap>() {
                                 override fun onResourceReady(
