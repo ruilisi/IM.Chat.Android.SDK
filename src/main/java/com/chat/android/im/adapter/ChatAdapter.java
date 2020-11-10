@@ -147,13 +147,28 @@ public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
         } else if (item.getMsgType().equals(MsgType.VIDEO)) {
             setVideoShow(helper, item);
         } else if (item.getMsgType().equals(MsgType.FILE)) {
-//            FileMsgBody msgBody = (FileMsgBody) item.getBody();
-//            helper.setText(R.id.msg_tv_file_name, msgBody.getDisplayName());
-//            helper.setText(R.id.msg_tv_file_size, msgBody.getSize() + "B");
+            setFileShow(helper, item);
         } else if (item.getMsgType().equals(MsgType.AUDIO)) {
 //            AudioMsgBody msgBody = (AudioMsgBody) item.getBody();
 //            helper.setText(R.id.tvDuration, msgBody.getDuration() + "\"");
         }
+    }
+
+    private void setFileShow(BaseViewHolder helper, ChatMessage item) {
+        MsgBody msgBody = item.getMsgBody();
+        TextView timeView = helper.getView(R.id.item_tv_time);
+        if (item.getTimeShow().getDate() == 0) {
+            timeView.setVisibility(View.GONE);
+        } else {
+            timeView.setVisibility(View.VISIBLE);
+            timeView.setTextColor(parseColor(timeView.getContext(), mUiConfig.getTimeColor()));
+            timeView.setTextSize(TypedValue.COMPLEX_UNIT_SP, mUiConfig.getTimeSize());
+            timeView.setText(parseTime(item.getTimeShow().getDate()));
+        }
+
+        helper.setText(R.id.msg_tv_file_name, msgBody.getAttachments()[0].getTitle());
+        helper.setText(R.id.msg_tv_file_description, msgBody.getAttachments()[0].getDescription());
+
     }
 
     private void setVideoShow(BaseViewHolder helper, ChatMessage item) {

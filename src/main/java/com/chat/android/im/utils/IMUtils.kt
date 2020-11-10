@@ -119,6 +119,8 @@ fun parseMsgType(data: MessageHistoryResultBody): MsgType {
         return MsgType.IMAGE
     } else if (data.file?.type?.startsWith("video") == true) {
         return MsgType.VIDEO
+    } else if (data.file?.type?.startsWith("text") == true) {
+        return MsgType.FILE
     }
     return MsgType.TEXT
 }
