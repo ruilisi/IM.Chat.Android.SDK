@@ -20,8 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/dp_10"
-        android:layout_marginRight="@dimen/dp_95"
-        android:paddingBottom="@dimen/dp_10">
+        android:layout_marginRight="@dimen/dp_95">
 
         <com.chat.android.im.view.CircleImageView
             android:id="@+id/chat_item_header"
