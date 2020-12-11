@@ -151,7 +151,7 @@ private fun requestBuilderForAuthenticatedMethods(httpUrl: HttpUrl): Request.Bui
 private fun requestBuilder(httpUrl: HttpUrl): Request.Builder =
         Request.Builder()
                 .url(httpUrl)
-                .header("User-Agent", "RC Mobile; Android ${Build.VERSION.RELEASE}; v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+                .header("User-Agent", "RC Mobile; Android ${Build.VERSION.RELEASE})")
                 .tag(Any())
 
 private suspend fun <T> ChatActivity.handleRestCall(
