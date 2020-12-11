@@ -26,6 +26,7 @@ import com.bumptech.glide.Glide;
 import com.chat.android.im.R;
 import com.chat.android.im.adapter.ChatAdapter;
 import com.chat.android.im.bean.ChatMessage;
+import com.chat.android.im.bean.MsgSendStatus;
 import com.chat.android.im.bean.MsgStatus;
 import com.chat.android.im.config.RLS;
 import com.chat.android.im.config.UnifyUiConfig;
@@ -365,6 +366,12 @@ public class ChatActivity extends AppCompatActivity implements IApp, SwipeRefres
 
             @Override
             public void initChatMsgListView(@NotNull List<ChatMessage> chatMessageList, boolean dismissRefreshLoading) {
+                for (ChatMessage localMessage : chatMessageList) {
+                    if (localMessage.getSentStatus() == MsgSendStatus.SENDING) {
+                        localMessage.setReSend(true);
+                        mViewModel.getChatSendingMessage().put(localMessage.getMsgId(), localMessage);
+                    }
+                }
                 ChatActivity.this.initChatMsgListView(chatMessageList, dismissRefreshLoading);
             }
         });

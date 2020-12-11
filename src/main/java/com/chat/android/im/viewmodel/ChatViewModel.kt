@@ -336,6 +336,13 @@ class ChatViewModel : ViewModel() {
                         MessageManager.syncWithLockSendMsg(chatSendingMessage.valueAt(0))
                     }
                 }
+                "updated" -> {
+                    iChatMessage?.getItemList()?.find { it.reSend && it.msgId.toString() == receiveMessage.methods?.first() }?.apply {
+                        receiveMessage.id = this.msgId.toString()
+                        receiveMessage.result = MessageHistoryResultBody()
+                        updateSendMsgStatus(receiveMessage, true)
+                    }
+                }
                 "changed" -> {//server send to client
                     val args = receiveMessage.fields?.args
                     if (!args.isNullOrEmpty()) {
