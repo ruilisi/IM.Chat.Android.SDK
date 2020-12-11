@@ -277,7 +277,7 @@ public class ChatActivity extends AppCompatActivity implements IApp, SwipeRefres
         }
 
         setConfigUi();
-        mAdapter = new ChatAdapter(this, new ArrayList());
+        mAdapter = new ChatAdapter(new ArrayList());
         LinearLayoutManager mLinearLayout = new LinearLayoutManager(this);
         mBinding.rvChatList.setLayoutManager(mLinearLayout);
         mBinding.rvChatList.setAdapter(mAdapter);
