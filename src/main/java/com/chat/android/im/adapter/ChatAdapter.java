@@ -9,9 +9,9 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.chad.library.adapter.base.BaseViewHolder;
-import com.chad.library.adapter.base.util.MultiTypeDelegate;
+import com.chad.library.adapter.base.BaseDelegateMultiAdapter;
+import com.chad.library.adapter.base.delegate.BaseMultiTypeDelegate;
+import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.chat.android.im.R;
 import com.chat.android.im.activity.PlayerActivity;
 import com.chat.android.im.bean.ChatMessage;
@@ -28,12 +28,14 @@ import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.controller.AbstractDraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 import static com.chat.android.im.utils.IMUtilsKt.attachmentTitle;
 import static com.chat.android.im.utils.IMUtilsKt.parseColor;
 
-public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
+public class ChatAdapter extends BaseDelegateMultiAdapter<ChatMessage, BaseViewHolder> {
 
 
     private static final int TYPE_SEND_TEXT = 1;
@@ -61,17 +63,15 @@ public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
     private static final int SEND_LOCATION = R.layout.item_location_send;
     private static final int RECEIVE_LOCATION = R.layout.item_location_receive;*/
 
-    //    private long msgChangedTime = 0;
-//    private boolean showTime = true;
-//    private long itemCount = 0;
     private UnifyUiConfig mUiConfig = RLS.getInstance().getUiConfig();
 
 
     public ChatAdapter(Context context, List<ChatMessage> data) {
         super(data);
-        setMultiTypeDelegate(new MultiTypeDelegate<ChatMessage>() {
+        setMultiTypeDelegate(new BaseMultiTypeDelegate<ChatMessage>() {
             @Override
-            protected int getItemType(ChatMessage entity) {
+            public int getItemType(@NotNull List<? extends ChatMessage> list, int i) {
+                ChatMessage entity = list.get(i);
                 boolean isSend = entity.getMsgStatus() == MsgStatus.SEND;
                 if (MsgType.TEXT == entity.getMsgType()) {
                     return isSend ? TYPE_SEND_TEXT : TYPE_RECEIVE_TEXT;
@@ -86,17 +86,18 @@ public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
                 }
                 return 0;
             }
+
         });
-        getMultiTypeDelegate().registerItemType(TYPE_SEND_TEXT, SEND_TEXT)
-                .registerItemType(TYPE_RECEIVE_TEXT, RECEIVE_TEXT)
-                .registerItemType(TYPE_SEND_IMAGE, SEND_IMAGE)
-                .registerItemType(TYPE_RECEIVE_IMAGE, RECEIVE_IMAGE)
-                .registerItemType(TYPE_SEND_VIDEO, SEND_VIDEO)
-                .registerItemType(TYPE_RECEIVE_VIDEO, RECEIVE_VIDEO)
-                .registerItemType(TYPE_SEND_FILE, SEND_FILE)
-                .registerItemType(TYPE_RECEIVE_FILE, RECEIVE_FILE)
-                .registerItemType(TYPE_SEND_AUDIO, SEND_AUDIO)
-                .registerItemType(TYPE_RECEIVE_AUDIO, RECEIVE_AUDIO);
+        getMultiTypeDelegate().addItemType(TYPE_SEND_TEXT, SEND_TEXT)
+                .addItemType(TYPE_RECEIVE_TEXT, RECEIVE_TEXT)
+                .addItemType(TYPE_SEND_IMAGE, SEND_IMAGE)
+                .addItemType(TYPE_RECEIVE_IMAGE, RECEIVE_IMAGE)
+                .addItemType(TYPE_SEND_VIDEO, SEND_VIDEO)
+                .addItemType(TYPE_RECEIVE_VIDEO, RECEIVE_VIDEO)
+                .addItemType(TYPE_SEND_FILE, SEND_FILE)
+                .addItemType(TYPE_RECEIVE_FILE, RECEIVE_FILE)
+                .addItemType(TYPE_SEND_AUDIO, SEND_AUDIO)
+                .addItemType(TYPE_RECEIVE_AUDIO, RECEIVE_AUDIO);
     }
 
     @Override
@@ -263,9 +264,6 @@ public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
             timeView.setTextSize(TypedValue.COMPLEX_UNIT_SP, mUiConfig.getTimeSize());
             timeView.setText(parseTime(item.getTimeShow().getDate()));
         }
-//        if (helper.getLayoutPosition() == itemCount) {
-//            timeView.setVisibility(showTime ? View.VISIBLE : View.GONE);
-//        }
 
         TextView contentText = helper.getView(R.id.chat_item_content_text);
         contentText.setText(msgBody.getMessage());
@@ -279,21 +277,6 @@ public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
             contentText.setBackgroundResource(mUiConfig.getReceiveBackgroundRes());
         }
     }
-
-//    private void setTime(BaseViewHolder helper, TextMsgBody msgBody) {
-//        int currentPosition = helper.getLayoutPosition();
-//        helper.setText(R.id.item_tv_time, parseTime(msgBody.getTime()));
-//        if (currentPosition - 1 < 0) {
-//            helper.setVisible(R.id.item_tv_time, true);
-//        } else {
-//            TextMsgBody lastMsgBody = (TextMsgBody) getData().get(currentPosition - 1).getBody();
-//            if (DateUtils.isMinute(msgBody.getTime(), lastMsgBody.getTime())) {
-//                helper.setVisible(R.id.item_tv_time, false);
-//            } else {
-//                helper.setVisible(R.id.item_tv_time, true);
-//            }
-//        }
-//    }
 
     private String parseTime(Long time) {
         if (time == null || time == 0) {
@@ -309,13 +292,4 @@ public class ChatAdapter extends BaseQuickAdapter<ChatMessage, BaseViewHolder> {
         }
     }
 
-//    @Override
-//    public void addData(@NonNull ChatMessage data) {
-//        long currentTime = System.currentTimeMillis();
-//        long subTime = currentTime - msgChangedTime;
-//        msgChangedTime = currentTime;
-//        showTime = subTime > SEND_INTERVAL_NO_SHOW_TIME;
-//        itemCount = getItemCount();
-//        super.addData(data);
-//    }
 }

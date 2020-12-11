@@ -30,6 +30,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.listener.OnItemClickListener;
 import com.chat.android.im.R;
 import com.chat.android.im.emoji.EmojiAdapter;
 import com.chat.android.im.emoji.EmojiBean;
@@ -120,9 +121,10 @@ public class ChatUiHelper {
             } else {
                 entranceAdapter = new EmojiAdapter(mListEmoji.subList(index * EVERY_PAGE_SIZE, (index + 1) * EVERY_PAGE_SIZE), index, EVERY_PAGE_SIZE);
             }
-            entranceAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
+
+            entranceAdapter.setOnItemClickListener(new OnItemClickListener() {
                 @Override
-                public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+                public void onItemClick(@NonNull BaseQuickAdapter<?, ?> adapter, @NonNull View view, int position) {
                     EmojiBean mEmojiBean = (EmojiBean) adapter.getData().get(position);
                     if (mEmojiBean.getId() == 0) {
                         //如果是删除键
@@ -131,10 +133,9 @@ public class ChatUiHelper {
                     } else {
                         mEditText.append(((EmojiBean) adapter.getData().get(position)).getUnicodeInt());
                     }
-
-
                 }
             });
+
             recyclerView.setAdapter(entranceAdapter);
             viewList.add(recyclerView);
         }
