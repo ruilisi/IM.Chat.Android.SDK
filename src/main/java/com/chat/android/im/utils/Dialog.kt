@@ -31,6 +31,7 @@ fun ChatActivity.showFileAttachmentDialog(uri: Uri) {
     val description = dialogView.findViewById<EditText>(R.id.text_file_description)
     val audioVideoAttachment = dialogView.findViewById<FrameLayout>(R.id.audio_video_attachment)
     val textFile = dialogView.findViewById<TextView>(R.id.text_file_name)
+    val dialogTitle = dialogView.findViewById<TextView>(R.id.text_dialog_title)
 
     imagePreview.isVisible = false
     audioVideoAttachment.isVisible = false
@@ -73,8 +74,15 @@ fun ChatActivity.showFileAttachmentDialog(uri: Uri) {
             else -> {
                 textFile.isVisible = true
                 textFile.text = uri.getFileName(this)
+                if (textFile.text.isEmpty()) {
+                    textFile.text = "Unrecognized file"
+                }
             }
         }
+    }.ifNull {
+        description.isVisible = false
+        sendButton.isVisible = false
+        dialogTitle.text = "Unkown file"
     }
 
     sendButton.setOnClickListener {

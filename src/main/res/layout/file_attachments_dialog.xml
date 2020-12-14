@@ -84,7 +84,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:background="@drawable/im_message_shap_send_bg"
-            android:text="@string/Send"
+            android:text="Send"
             android:textColor="@color/im_white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_file_description" />

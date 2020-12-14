@@ -60,6 +60,8 @@ import com.luck.picture.lib.engine.PictureSelectorEngine;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.language.LanguageConfig;
 import com.luck.picture.lib.listener.OnResultCallbackListener;
+import com.rls.pickfile.android.activity.FilePickerActivity;
+import com.rls.pickfile.android.viewmodel.FilePickerViewModel;
 import com.squareup.moshi.Moshi;
 
 import org.jetbrains.annotations.NotNull;
@@ -306,7 +308,20 @@ public class ChatActivity extends AppCompatActivity implements IApp, SwipeRefres
                 }
         );
 
+        mBinding.llAdd.rlFile.setOnClickListener(v ->
+                {
+                    mUiHelper.hideBottomLayout(false);
+                    mUiHelper.hideSoftInput();
+                    mBinding.etContent.clearFocus();
+                    openFilePicker();
+                }
+        );
     }
+
+    private void openFilePicker() {
+        startActivityForResult(new Intent(this, FilePickerActivity.class), REQUEST_CODE_FOR_PERFORM_SAF);
+    }
+
 
     private void initChatUi() {
 
@@ -473,6 +488,13 @@ public class ChatActivity extends AppCompatActivity implements IApp, SwipeRefres
                     }
                 }
                 case REQUEST_CODE_FOR_PERFORM_SAF: {
+                    if (data != null) {
+                        String path = data.getStringExtra(FilePickerViewModel.RESULT_FILE_PATH);
+                        if (path != null) {
+                            //upload file
+                            DialogKt.showFileAttachmentDialog(ChatActivity.this, Uri.parse(path));
+                        }
+                    }
                 }
             }
         }

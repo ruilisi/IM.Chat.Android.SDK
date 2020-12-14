@@ -60,6 +60,7 @@ dependencies {
 
     //ROOM
     implementation "androidx.room:room-runtime:2.2.5"
+    implementation project(path: ':android.file.picker')
 //    implementation project(path: ':Android.File.Picker')
     kapt "androidx.room:room-compiler:2.2.5"
     //okhttp
