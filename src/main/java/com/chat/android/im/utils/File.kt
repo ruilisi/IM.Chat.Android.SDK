@@ -39,7 +39,6 @@ fun ChatActivity.uploadImage(roomId: String, mimeType: String, uri: Uri, bitmap:
                 } else {
                     val byteArray =
                             bitmap.getByteArray(mimeType, 100, 1024 * 1024)
-                    println("------------00000:${byteArray.size}")
                     retryIO("uploadFile($roomId, $fileName, $mimeType") {
                         uploadFile(
                                 roomId,

@@ -225,7 +225,7 @@ class ChatViewModel : ViewModel() {
      * send message to server
      */
     private fun sendMsgToServer(msg: String?) {
-        if (null != client && client!!.isOpen && msg != null) {
+        if (null != client && client!!.isOpen && !msg.isNullOrEmpty()) {
             LogUtils.e("JWebSocketClientService", "发送的消息：$msg")
             client!!.send(msg)
         }
